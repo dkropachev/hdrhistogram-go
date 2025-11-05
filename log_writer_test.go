@@ -2,9 +2,10 @@ package hdrhistogram
 
 import (
 	"bytes"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestHistogramLogWriter_empty(t *testing.T) {
@@ -45,6 +46,8 @@ func TestHistogramLogWriterReader(t *testing.T) {
 		err = histogram.RecordValue(int64(i))
 		assert.Nil(t, err)
 	}
+	histogram.SetStartTimeMs(1000)
+	histogram.SetEndTimeMs(2000)
 	err = writer.OutputIntervalHistogram(histogram)
 	assert.Equal(t, nil, err)
 	r := bytes.NewReader(b.Bytes())
@@ -54,6 +57,8 @@ func TestHistogramLogWriterReader(t *testing.T) {
 	assert.Equal(t, histogram.TotalCount(), outHistogram.TotalCount())
 	assert.Equal(t, histogram.LowestTrackableValue(), outHistogram.LowestTrackableValue())
 	assert.Equal(t, histogram.HighestTrackableValue(), outHistogram.HighestTrackableValue())
+	assert.Equal(t, histogram.StartTimeMs(), outHistogram.StartTimeMs())
+	assert.Equal(t, histogram.EndTimeMs(), outHistogram.EndTimeMs())
 }
 
 func TestHistogramLogReader_logV2(t *testing.T) {
