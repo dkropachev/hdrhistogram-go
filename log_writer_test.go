@@ -2,10 +2,10 @@ package hdrhistogram
 
 import (
 	"bytes"
-	"github.com/stretchr/testify/assert"
-	"errors"
-	"io/ioutil"
+	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestHistogramLogWriter_empty(t *testing.T) {
@@ -15,7 +15,6 @@ func TestHistogramLogWriter_empty(t *testing.T) {
 	assert.Nil(t, err)
 	var startTimeWritten int64 = 1000
 	err = writer.OutputStartTime(startTimeWritten)
-	if errors.Is().Is(err)
 	assert.Nil(t, err)
 	err = writer.OutputLogFormatVersion()
 	assert.Nil(t, err)
@@ -59,7 +58,7 @@ func TestHistogramLogWriterReader(t *testing.T) {
 }
 
 func TestHistogramLogReader_logV2(t *testing.T) {
-	dat, err := ioutil.ReadFile("./test/jHiccup-2.0.7S.logV2.hlog")
+	dat, err := os.ReadFile("./test/jHiccup-2.0.7S.logV2.hlog")
 	assert.Equal(t, nil, err)
 	r := bytes.NewReader(dat)
 	reader := NewHistogramLogReader(r)
@@ -71,7 +70,7 @@ func TestHistogramLogReader_logV2(t *testing.T) {
 }
 
 func TestHistogramLogReader_tagged_log(t *testing.T) {
-	dat, err := ioutil.ReadFile("./test/tagged-Log.logV2.hlog")
+	dat, err := os.ReadFile("./test/tagged-Log.logV2.hlog")
 	assert.Equal(t, nil, err)
 	r := bytes.NewReader(dat)
 	reader := NewHistogramLogReader(r)

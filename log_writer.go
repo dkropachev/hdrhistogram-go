@@ -1,4 +1,4 @@
-//The log format encodes into a single file, multiple histograms with optional shared meta data.
+// The log format encodes into a single file, multiple histograms with optional shared meta data.
 package hdrhistogram
 
 import (

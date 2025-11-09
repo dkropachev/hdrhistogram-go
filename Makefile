@@ -22,7 +22,7 @@ checkfmt:
 	exit $$EXIT_CODE
 
 lint:
-	$(GOGET) github.com/golangci/golangci-lint/cmd/golangci-lint
+	$(GOINSTALL) github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 	golangci-lint run
 
 get:

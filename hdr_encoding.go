@@ -10,7 +10,7 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 	"fmt"
-	"io/ioutil"
+	"io"
 )
 
 const (
@@ -153,7 +153,7 @@ func decodeCompressedFormat(compressedContents []byte, headerSize int) (rh *Hist
 		return
 	}
 	defer z.Close()
-	decompressedSlice, err := ioutil.ReadAll(z)
+	decompressedSlice, err := io.ReadAll(z)
 	if err != nil {
 		return
 	}
