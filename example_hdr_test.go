@@ -13,6 +13,7 @@ import (
 //   - 1 microsecond up to 10 milliseconds,
 //   - 100 microsecond (or better) from 10 milliseconds up to 10 seconds,
 //   - 300 microsecond (or better) from 10 seconds up to 30 seconds,
+//
 // nolint
 func ExampleNew() {
 	lH := hdrhistogram.New(1, 30000000, 4)
@@ -38,6 +39,7 @@ func ExampleNew() {
 //   - 1 microsecond up to 1 millisecond,
 //   - 1 millisecond (or better) up to one second,
 //   - 1 second (or better) up to it's maximum tracked value ( 30 seconds ).
+//
 // nolint
 func ExampleHistogram_RecordValue() {
 	lH := hdrhistogram.New(1, 30000000, 3)
