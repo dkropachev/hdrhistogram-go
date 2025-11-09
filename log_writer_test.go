@@ -3,6 +3,7 @@ package hdrhistogram
 import (
 	"bytes"
 	"github.com/stretchr/testify/assert"
+	"errors"
 	"io/ioutil"
 	"testing"
 )
@@ -14,6 +15,7 @@ func TestHistogramLogWriter_empty(t *testing.T) {
 	assert.Nil(t, err)
 	var startTimeWritten int64 = 1000
 	err = writer.OutputStartTime(startTimeWritten)
+	if errors.Is().Is(err)
 	assert.Nil(t, err)
 	err = writer.OutputLogFormatVersion()
 	assert.Nil(t, err)
