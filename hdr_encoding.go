@@ -1,7 +1,20 @@
-// Histograms are encoded using the HdrHistogram V2 format which is based on an adapted ZigZag LEB128 encoding where:
-// consecutive zero counters are encoded as a negative number representing the count of consecutive zeros
-// non zero counter values are encoded as a positive number
-// A typical histogram (2 digits precision 1 usec to 1 day range) can be encoded in less than the typical MTU size of 1500 bytes.
+// Package hdrhistogram provides facilities for encoding and decoding
+// high dynamic range histograms using the HdrHistogram V2 format.
+//
+// The V2 format uses a modified ZigZag LEB128 encoding scheme optimized
+// for compactness:
+//   - Consecutive zero counters are represented as a negative integer
+//     indicating the run length of zeros.
+//   - Non-zero counters are represented as positive integers.
+//
+// This encoding allows a typical histogram (with 2 digits of precision
+// covering a range from 1 microsecond to 1 day) to be represented in
+// less than a single MTU-sized packet (~1500 bytes).
+//
+// Histograms can be serialized to or deserialized from compressed
+// Base64-encoded binary representations for efficient transmission
+// or archival. The implementation supports only the V2 compressed
+// encoding format.
 package hdrhistogram
 
 import (
@@ -10,7 +23,7 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 	"fmt"
-	"io/ioutil"
+	"io"
 )
 
 const (
@@ -30,7 +43,7 @@ func (h *Histogram) Encode(version int32) (buffer []byte, err error) {
 	case V2CompressedEncodingCookieBase:
 		buffer, err = h.dumpV2CompressedEncoding()
 	default:
-		err = fmt.Errorf("The provided enconding version %d is not supported.", version)
+		err = fmt.Errorf("the provided enconding version %d is not supported", version)
 	}
 	return
 }
@@ -52,19 +65,19 @@ func Decode(encoded []byte) (rh *Histogram, err error) {
 	Cookie := r32[0] & ^0xf0
 	lengthOfCompressedContents := r32[1]
 	if Cookie != V2CompressedEncodingCookieBase {
-		err = fmt.Errorf("Encoding not supported, only V2 is supported. Got %d want %d", Cookie, V2CompressedEncodingCookieBase)
+		err = fmt.Errorf("encoding not supported, only V2 is supported. got %d want %d", Cookie, V2CompressedEncodingCookieBase)
 		return
 	}
 	decodeLengthOfCompressedContents := int32(len(decoded[8:]))
 	if lengthOfCompressedContents > decodeLengthOfCompressedContents {
-		err = fmt.Errorf("The compressed contents buffer is smaller than the lengthOfCompressedContents. Got %d want %d", decodeLengthOfCompressedContents, lengthOfCompressedContents)
+		err = fmt.Errorf("the compressed contents buffer is smaller than the lengthOfCompressedContents. got %d want %d", decodeLengthOfCompressedContents, lengthOfCompressedContents)
 		return
 	}
 	rh, err = decodeCompressedFormat(decoded[8:8+lengthOfCompressedContents], ENCODING_HEADER_SIZE)
 	return
 }
 
-// internal method to encode an histogram in V2 Compressed format
+// internal method to encode a histogram in V2 Compressed format
 func (h *Histogram) dumpV2CompressedEncoding() (outBuffer []byte, err error) {
 	// final buffer
 	buf := new(bytes.Buffer)
@@ -87,7 +100,10 @@ func (h *Histogram) dumpV2CompressedEncoding() (outBuffer []byte, err error) {
 	if err != nil {
 		return
 	}
-	w.Close()
+	err = w.Close()
+	if err != nil {
+		return
+	}
 
 	// LengthOfCompressedContents
 	compressedContents := b.Bytes()
@@ -152,8 +168,12 @@ func decodeCompressedFormat(compressedContents []byte, headerSize int) (rh *Hist
 	if err != nil {
 		return
 	}
-	defer z.Close()
-	decompressedSlice, err := ioutil.ReadAll(z)
+	defer func() {
+		if closeErr := z.Close(); closeErr != nil && err == nil {
+			err = closeErr
+		}
+	}()
+	decompressedSlice, err := io.ReadAll(z)
 	if err != nil {
 		return
 	}
@@ -163,12 +183,12 @@ func decodeCompressedFormat(compressedContents []byte, headerSize int) (rh *Hist
 		return
 	}
 	if cookie != V2EncodingCookieBase {
-		err = fmt.Errorf("Encoding not supported, only V2 is supported. Got %d want %d", cookie, V2EncodingCookieBase)
+		err = fmt.Errorf("encoding not supported, only V2 is supported. got %d want %d", cookie, V2EncodingCookieBase)
 		return
 	}
 	actualPayloadLen := decompressedSliceLen - int32(headerSize)
 	if PayloadLength != actualPayloadLen {
-		err = fmt.Errorf("PayloadLength should have the same size of the actual payload. Got %d want %d", actualPayloadLen, PayloadLength)
+		err = fmt.Errorf("PayloadLength should have the same size of the actual payload. got %d want %d", actualPayloadLen, PayloadLength)
 		return
 	}
 	rh = New(LowestTrackableValue, HighestTrackableValue, int(NumberOfSignificantValueDigits))
@@ -200,21 +220,21 @@ func fillCountsArrayFromSourceBuffer(payload []byte, rh *Histogram) (err error) 
 	return
 }
 
-func (rh *Histogram) fillBufferFromCountsArray() (buffer []byte, err error) {
+func (h *Histogram) fillBufferFromCountsArray() (buffer []byte, err error) {
 	buf := new(bytes.Buffer)
 	// V2 encoding format uses a ZigZag LEB128-64b9B encoded long. Positive values are counts,
 	// while negative values indicate a repeat zero counts.
-	var countsLimit int32 = int32(rh.countsIndexFor(rh.Max()) + 1)
+	var countsLimit = int32(h.countsIndexFor(h.Max()) + 1)
 	var srcIndex int32 = 0
 	for srcIndex < countsLimit {
-		count := rh.counts[srcIndex]
+		count := h.counts[srcIndex]
 		srcIndex++
 
 		var zeros int64 = 0
 		// check for contiguous zeros
 		if count == 0 {
 			zeros = 1
-			for srcIndex < countsLimit && 0 == rh.counts[srcIndex] {
+			for srcIndex < countsLimit && h.counts[srcIndex] == 0 {
 				zeros++
 				srcIndex++
 			}

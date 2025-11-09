@@ -1,3 +1,6 @@
+SHELL=bash
+.ONESHELL:
+
 # Go parameters
 GOCMD=GO111MODULE=on go
 GOBUILD=$(GOCMD) build
@@ -8,6 +11,11 @@ GOGET=$(GOCMD) get
 GOMOD=$(GOCMD) mod
 GOFMT=$(GOCMD) fmt
 GODOC=godoc
+
+MAKEFILE_PATH := $(abspath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
+BIN_DIR := "${MAKEFILE_PATH}/bin"
+
+GOLANGCI_VERSION=2.6.0
 
 .PHONY: all test coverage
 all: test
@@ -21,15 +29,14 @@ checkfmt:
 	fi && \
 	exit $$EXIT_CODE
 
-lint:
-	$(GOGET) github.com/golangci/golangci-lint/cmd/golangci-lint
-	golangci-lint run
+lint: .prepare-golangci
+	@$(BIN_DIR)/golangci-lint run
 
 get:
 	$(GOGET) -v ./...
 
-fmt:
-	$(GOFMT) ./...
+fmt: .prepare-golangci
+	@$(BIN_DIR)/golangci-lint run --fix
 
 test: get fmt
 	$(GOTEST) -count=1 ./...
@@ -43,3 +50,11 @@ benchmark: get
 godoc:
 	$(GODOC)
 
+.prepare-bin:
+	@[[ -d "$(MAKEFILE_PATH)/bin" ]] || mkdir "$(MAKEFILE_PATH)/bin"
+
+.prepare-golangci: .prepare-bin
+	@if ! "${BIN_DIR}/golangci-lint" --version 2>/dev/null | grep '${GOLANGCI_VERSION}' >/dev/null 2>&1 ; then \
+		echo "Installing golangci-lint to '${BIN_DIR}'" ; \
+		curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b bin/ v$(GOLANGCI_VERSION) ; \
+	fi
