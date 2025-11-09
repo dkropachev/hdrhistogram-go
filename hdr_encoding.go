@@ -87,7 +87,10 @@ func (h *Histogram) dumpV2CompressedEncoding() (outBuffer []byte, err error) {
 	if err != nil {
 		return
 	}
-	w.Close()
+	err = w.Close()
+	if err != nil {
+		return
+	}
 
 	// LengthOfCompressedContents
 	compressedContents := b.Bytes()
@@ -152,7 +155,11 @@ func decodeCompressedFormat(compressedContents []byte, headerSize int) (rh *Hist
 	if err != nil {
 		return
 	}
-	defer z.Close()
+	defer func() {
+		if closeErr := z.Close(); closeErr != nil && err == nil {
+			err = closeErr
+		}
+	}()
 	decompressedSlice, err := io.ReadAll(z)
 	if err != nil {
 		return

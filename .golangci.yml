@@ -34,9 +34,6 @@ issues:
   max-issues-per-linter: 0
   max-same-issues: 0
 
-  # Only report new issues (since last commit)
-  new: true
-
   exclude-rules:
     # Exclude some linters from running on tests files
     - path: _test\.go
