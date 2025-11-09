@@ -2,7 +2,7 @@ package hdrhistogram
 
 import "fmt"
 
-const truncatedErrStr = "Truncated compressed histogram decode. Expected minimum length of %d bytes and got %d."
+const truncatedErrStr = "truncated compressed histogram decode. Expected minimum length of %d bytes and got %d"
 
 // Read an LEB128 ZigZag encoded long value from the given buffer
 func zig_zag_decode_i64(buf []byte) (signedValue int64, n int, err error) {

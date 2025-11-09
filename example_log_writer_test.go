@@ -3,15 +3,16 @@ package hdrhistogram_test
 import (
 	"bytes"
 	"fmt"
+	"os"
+
 	hdrhistogram "github.com/HdrHistogram/hdrhistogram-go"
-	"io/ioutil"
 )
 
 // The log format encodes into a single file, multiple histograms with optional shared meta data.
 // The following example showcases reading a log file into a slice of histograms
 // nolint
 func ExampleNewHistogramLogReader() {
-	dat, _ := ioutil.ReadFile("./test/tagged-Log.logV2.hlog")
+	dat, _ := os.ReadFile("./test/tagged-Log.logV2.hlog")
 	r := bytes.NewReader(dat)
 
 	// Create a histogram log reader
@@ -81,11 +82,14 @@ func ExampleNewHistogramLogWriter() {
 	writer.OutputIntervalHistogram(hist2)
 	writer.OutputIntervalHistogram(hist3)
 
-	ioutil.WriteFile("example.logV2.hlog", buff.Bytes(), 0644)
+	err := os.WriteFile("example.logV2.hlog", buff.Bytes(), 0644)
+	if err != nil {
+		panic(err)
+	}
 
 	// read check
 	// Lets read all again and confirm that the total sample count is 10
-	dat, _ := ioutil.ReadFile("example.logV2.hlog")
+	dat, _ := os.ReadFile("example.logV2.hlog")
 	r := bytes.NewReader(dat)
 
 	// Create a histogram log reader

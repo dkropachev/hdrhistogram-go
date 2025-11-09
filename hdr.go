@@ -346,10 +346,8 @@ func (h *Histogram) getValueFromIdxUpToCount(countAtPercentile int64) int64 {
 	var bucketIdx int32
 	bucketBaseIdx := h.getBucketBaseIdx(bucketIdx)
 
-	for {
-		if countToIdx >= countAtPercentile {
-			break
-		}
+	for countToIdx < countAtPercentile {
+
 		// increment bucket
 		subBucketIdx++
 		if subBucketIdx >= h.subBucketCount {
@@ -698,7 +696,7 @@ type pIterator struct {
 }
 
 func (p *pIterator) next() bool {
-	if !(p.countToIdx < p.h.totalCount) {
+	if p.countToIdx >= p.h.totalCount {
 		if p.seenLastValue {
 			return false
 		}
@@ -763,7 +761,7 @@ func (h *Histogram) PercentilesPrint(writer io.Writer, ticksPerHalfDistance int3
 		if math.IsInf(inverted_percentile, 1) {
 			inverted_percentile_string = fmt.Sprintf("%12s", "inf")
 		}
-		_, err = outputWriter.Write([]byte(fmt.Sprintf("%12.3f %12f %12d %s\n", float64(slice.ValueAt)/valueScale, percentile, slice.Count, inverted_percentile_string)))
+		_, err = fmt.Fprintf(outputWriter, "%12.3f %12f %12d %s\n", float64(slice.ValueAt)/valueScale, percentile, slice.Count, inverted_percentile_string)
 		if err != nil {
 			return
 		}
