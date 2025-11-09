@@ -2,8 +2,9 @@ package hdrhistogram_test
 
 import (
 	"fmt"
-	"github.com/HdrHistogram/hdrhistogram-go"
 	"os"
+
+	"github.com/HdrHistogram/hdrhistogram-go"
 )
 
 // This latency Histogram could be used to track and analyze the counts of
