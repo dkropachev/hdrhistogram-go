@@ -100,7 +100,7 @@ func (lw *HistogramLogWriter) OutputIntervalHistogramWithLogOptions(histogram *H
 	if err != nil {
 		return
 	}
-	_, err = lw.log.Write([]byte(fmt.Sprintf("%s%f,%f,%f,%s\n", tagStr, startTime, endTime-startTime, maxValueAsDouble, string(cpayload))))
+	_, err = fmt.Fprintf(lw.log, "%s%f,%f,%f,%s\n", tagStr, startTime, endTime-startTime, maxValueAsDouble, string(cpayload))
 	return
 }
 
