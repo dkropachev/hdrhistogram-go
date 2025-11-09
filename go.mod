@@ -1,6 +1,8 @@
 module github.com/HdrHistogram/hdrhistogram-go
 
-go 1.23.0
+go 1.23
+
+toolchain go1.23.0
 
 require (
 	github.com/google/go-cmp v0.7.0
