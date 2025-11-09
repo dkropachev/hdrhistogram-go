@@ -1,0 +1,42 @@
+run:
+  timeout: 5m
+  tests: false  # Don't lint test files to save memory
+  modules-download-mode: readonly
+  concurrency: 1  # Reduce parallel processing to save memory
+
+linters:
+  # Use minimal set of fast linters
+  enable:
+    - errcheck      # Check for unchecked errors
+    - gofmt         # Check whether code was gofmt-ed
+    - goimports     # Check import statements are formatted well
+    - govet         # Vet examines Go source code
+    - ineffassign   # Detect ineffectual assignments
+    - typecheck     # Like the front-end of a Go compiler, parses and type-checks Go code
+
+  # Explicitly disable all other linters
+  disable-all: false
+
+linters-settings:
+  errcheck:
+    check-blank: false
+    check-type-assertions: false
+
+  govet:
+    enable-all: false  # Disable all checks to reduce memory
+    enable:
+      - atomic
+      - bools
+      - errorsas
+
+issues:
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+  exclude-rules:
+    # Exclude some linters from running on tests files
+    - path: _test\.go
+      linters:
+        - errcheck
+
