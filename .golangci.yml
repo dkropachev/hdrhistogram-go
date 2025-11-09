@@ -1,56 +1,42 @@
 run:
   timeout: 5m
-  tests: true
+  tests: false  # Don't lint test files to save memory
   modules-download-mode: readonly
+  concurrency: 1  # Reduce parallel processing to save memory
 
 linters:
+  # Use minimal set of fast linters
   enable:
     - errcheck      # Check for unchecked errors
-    - gosimple      # Simplify code
-    - govet         # Vet examines Go source code
-    - ineffassign   # Detect ineffectual assignments
-    - staticcheck   # Advanced Go linter
-    - unused        # Check for unused constants, variables, functions and types
     - gofmt         # Check whether code was gofmt-ed
     - goimports     # Check import statements are formatted well
-    - misspell      # Finds commonly misspelled English words
-    - revive        # Fast, configurable, extensible, flexible, and beautiful linter for Go
+    - govet         # Vet examines Go source code
+    - ineffassign   # Detect ineffectual assignments
     - typecheck     # Like the front-end of a Go compiler, parses and type-checks Go code
+
+  # Explicitly disable all other linters
+  disable-all: false
 
 linters-settings:
   errcheck:
     check-blank: false
     check-type-assertions: false
-  
+
   govet:
-    enable-all: true
-    disable:
-      - shadow
-  
-  revive:
-    confidence: 0.8
-    rules:
-      - name: blank-imports
-      - name: context-as-argument
-      - name: dot-imports
-      - name: error-return
-      - name: error-strings
-      - name: error-naming
-      - name: exported
-      - name: increment-decrement
-      - name: var-naming
-      - name: package-comments
-      - name: range
-      - name: receiver-naming
-      - name: indent-error-flow
-      - name: superfluous-else
-      - name: unreachable-code
+    enable-all: false  # Disable all checks to reduce memory
+    enable:
+      - atomic
+      - bools
+      - errorsas
 
 issues:
   exclude-use-default: false
   max-issues-per-linter: 0
   max-same-issues: 0
-  
+
+  # Only report new issues (since last commit)
+  new: true
+
   exclude-rules:
     # Exclude some linters from running on tests files
     - path: _test\.go

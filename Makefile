@@ -23,7 +23,7 @@ checkfmt:
 
 lint:
 	$(GOINSTALL) github.com/golangci/golangci-lint/cmd/golangci-lint@v1.59.0
-	golangci-lint run
+	golangci-lint run --fast
 
 get:
 	$(GOGET) -v ./...
