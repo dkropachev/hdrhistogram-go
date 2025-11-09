@@ -37,12 +37,12 @@ func (hlr *HistogramLogReader) ObservedMax() bool {
 	return hlr.observedMax
 }
 
-// Returns the overall observed max limit ( up to the current point ) of the read histograms
+// RangeObservedMax returns the overall observed max limit ( up to the current point ) of the read histograms
 func (hlr *HistogramLogReader) RangeObservedMax() int64 {
 	return hlr.rangeObservedMax
 }
 
-// Returns the overall observed min limit ( up to the current point ) of the read histograms
+// RangeObservedMin returns the overall observed min limit ( up to the current point ) of the read histograms
 func (hlr *HistogramLogReader) RangeObservedMin() int64 {
 	return hlr.rangeObservedMin
 }
@@ -89,7 +89,7 @@ func (hlr *HistogramLogReader) NextIntervalHistogramWithRange(rangeStartTimeSec,
 
 func (hlr *HistogramLogReader) decodeNextIntervalHistogram() (histogram *Histogram, err error) {
 	var line string
-	var tag string = ""
+	var tag = ""
 	var logTimeStampInSec float64
 	var intervalLengthSec float64
 	for {
@@ -167,7 +167,7 @@ func (hlr *HistogramLogReader) decodeNextIntervalHistogram() (histogram *Histogr
 			absoluteStartTimeStampSec := logTimeStampInSec + hlr.baseTimeSec
 			offsetStartTimeStampSec := absoluteStartTimeStampSec + hlr.startTimeSec
 
-			// Timestamp length is expect to be in seconds
+			// Timestamp length is expected to be in seconds
 			absoluteEndTimeStampSec := absoluteStartTimeStampSec + intervalLengthSec
 
 			var startTimeStampToCheckRangeOn float64
