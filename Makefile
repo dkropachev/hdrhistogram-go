@@ -26,14 +26,14 @@ checkfmt:
 
 lint:
 	$(GOINSTALL) github.com/golangci/golangci-lint/cmd/golangci-lint@v1.61.0
-	golangci-lint run --fast
+	$$(go env GOPATH)/bin/golangci-lint run --fast
 
 get:
 	$(GOGET) -v ./...
 
 fmt:
 	$(GOINSTALL) github.com/golangci/golangci-lint/cmd/golangci-lint@v1.61.0
-	golangci-lint run --fix
+	$$(go env GOPATH)/bin/golangci-lint run --fix
 
 test: get fmt
 	$(GOTEST) -count=1 ./...
