@@ -5,15 +5,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Install Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v6
       with:
         go-version: 1.15.x
+
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v5
+
     - name: Generate coverage report
       run: |
         make coverage
+
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v4
       with:
         file: ./coverage.txt
